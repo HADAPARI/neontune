@@ -1,36 +1,109 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 🎵 NeonTune
 
-## Getting Started
+Une application de streaming musical moderne avec une interface néon cyberpunk, construite avec Next.js 15 et l'API YouTube.
 
-First, run the development server:
+## ✨ Fonctionnalités
 
+- 🔍 Recherche de musique via l'API YouTube
+- 🎧 Lecture audio en streaming progressif
+- 🎨 Interface utilisateur néon cyberpunk
+- 📱 Design responsive
+- 🚫 Sans publicité
+- 📨 Système de feedback intégré
+
+## 🛠️ Technologies utilisées
+
+- **Frontend**
+  - Next.js 15
+  - Tailwind CSS v4
+  - shadcn/ui
+  - Phosphor Icons
+  - Zustand (State Management)
+  - motion.dev (Animations)
+  - react-hook-form
+  - Tanstack Query
+
+- **Backend**
+  - Next.js API Routes
+  - YouTube Data API v3
+  - yt-dlp (extraction audio)
+  - Resend (emails)
+  - Zod (validation)
+
+## 🚀 Installation
+
+1. Clonez le dépôt :
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+git clone https://github.com/yourusername/neontune.git
+cd neontune
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+2. Installez les dépendances :
+```bash
+pnpm install
+```
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+3. Installez yt-dlp :
+```bash
+# Windows (avec Chocolatey)
+choco install yt-dlp
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+# macOS (avec Homebrew)
+brew install yt-dlp
 
-## Learn More
+# Linux
+sudo curl -L https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp -o /usr/local/bin/yt-dlp
+sudo chmod a+rx /usr/local/bin/yt-dlp
+```
 
-To learn more about Next.js, take a look at the following resources:
+4. Créez un fichier `.env.local` avec les variables suivantes :
+```env
+YOUTUBE_API_KEY=votre_clé_api_youtube
+RESEND_API_KEY=votre_clé_api_resend
+CONTACT_EMAIL=votre@email.com
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+5. Lancez le serveur de développement :
+```bash
+pnpm dev
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+L'application sera disponible à l'adresse [http://localhost:3000](http://localhost:3000).
 
-## Deploy on Vercel
+## 📝 Configuration
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+### YouTube API
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+1. Allez sur [Google Cloud Console](https://console.cloud.google.com/)
+2. Créez un nouveau projet
+3. Activez l'API YouTube Data v3
+4. Créez des identifiants (clé API)
+5. Copiez la clé dans votre fichier `.env.local`
+
+### Resend (Emails)
+
+1. Créez un compte sur [Resend](https://resend.com)
+2. Générez une clé API
+3. Copiez la clé dans votre fichier `.env.local`
+
+## 🤝 Contribution
+
+Les contributions sont les bienvenues ! N'hésitez pas à :
+
+1. Fork le projet
+2. Créer une branche (`git checkout -b feature/AmazingFeature`)
+3. Commit vos changements (`git commit -m 'Add some AmazingFeature'`)
+4. Push sur la branche (`git push origin feature/AmazingFeature`)
+5. Ouvrir une Pull Request
+
+## 📄 Licence
+
+Ce projet est sous licence MIT. Voir le fichier `LICENSE` pour plus de détails.
+
+## 🙏 Remerciements
+
+- [Next.js](https://nextjs.org/)
+- [Tailwind CSS](https://tailwindcss.com/)
+- [shadcn/ui](https://ui.shadcn.com/)
+- [YouTube API](https://developers.google.com/youtube/v3)
+- [yt-dlp](https://github.com/yt-dlp/yt-dlp)
