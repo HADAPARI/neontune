@@ -3,7 +3,7 @@ export interface Track {
   title: string;
   artist: string;
   thumbnail: string;
-  duration: number;
+  duration?: number;
   url?: string;
 }
 

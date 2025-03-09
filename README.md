@@ -19,7 +19,8 @@ Une application de streaming musical moderne avec une interface néon cyberpunk,
   - shadcn/ui
   - Phosphor Icons
   - Zustand (State Management)
-  - motion.dev (Animations)
+  - aceternity UI
+  - motion.dev (animations)
   - react-hook-form
   - Tanstack Query
 

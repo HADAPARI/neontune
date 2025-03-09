@@ -145,6 +145,10 @@
               0 0 25px #00FFFF;
 }
 
+.neon-pulse {
+  animation: neon-pulse 15s infinite alternate ease-in-out;
+}
+
 /* Scrollbar personnalisée */
 ::-webkit-scrollbar {
   width: 10px;
@@ -161,4 +165,52 @@
 
 ::-webkit-scrollbar-thumb:hover {
   background: #FF007F;
+}
+
+@keyframes neon-pulse {
+  0% {
+    text-shadow: 
+      0 0 6px #fff, 
+      0 0 10px #00FFFF, 
+      0 0 20px #00FFFF, 
+      0 0 40px #FF007F, 
+      0 0 80px #8D00FF;
+    color: #00FFFF;
+  }
+  25% {
+    text-shadow: 
+      0 0 8px #fff, 
+      0 0 12px #FF007F, 
+      0 0 24px #FF007F, 
+      0 0 48px #00FFFF, 
+      0 0 96px #8D00FF;
+    color: #FF007F;
+  }
+  50% {
+    text-shadow: 
+      0 0 10px #fff, 
+      0 0 16px #8D00FF, 
+      0 0 32px #8D00FF, 
+      0 0 64px #00FFFF, 
+      0 0 128px #FF007F;
+    color: #8D00FF;
+  }
+  75% {
+    text-shadow: 
+      0 0 8px #fff, 
+      0 0 12px #00FFFF, 
+      0 0 24px #00FFFF, 
+      0 0 48px #FF007F, 
+      0 0 96px #8D00FF;
+    color: #00FFFF;
+  }
+  100% {
+    text-shadow: 
+      0 0 6px #fff, 
+      0 0 10px #00FFFF, 
+      0 0 20px #00FFFF, 
+      0 0 40px #FF007F, 
+      0 0 80px #8D00FF;
+    color: #00FFFF;
+  }
 }

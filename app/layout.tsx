@@ -4,7 +4,6 @@ import "./globals.css";
 import { SITE_CONFIG } from "@/lib/constants";
 import { cn } from "@/lib/utils";
 import { ThemeToggle } from "@/components/theme-toggle";
-import { AudioPlayer } from "@/components/audio-player";
 import { Providers } from "./providers";
 
 const inter = Inter({ subsets: ["latin"] });
@@ -65,15 +64,15 @@ export default function RootLayout({
       <body
         className={cn(
           inter.className,
-          "min-h-screen antialiased",
+          "antialiased h-screen overflow-hidden",
           "bg-white dark:bg-[#0A0A0A]",
           "text-gray-900 dark:text-white"
         )}
       >
         <Providers>
-          <ThemeToggle />
+          <ThemeToggle type="toggle" className="sm:hidden"/>
+          <ThemeToggle type="select" className="hidden sm:block"/>
           {children}
-          <AudioPlayer />
         </Providers>
       </body>
     </html>

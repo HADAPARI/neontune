@@ -11,11 +11,6 @@ export function formatDuration(seconds: number): string {
   return `${minutes}:${remainingSeconds.toString().padStart(2, "0")}`
 }
 
-export function truncateText(text: string, maxLength: number): string {
-  if (text.length <= maxLength) return text
-  return text.slice(0, maxLength) + "..."
-}
-
 export function generateThumbnailUrl(videoId: string, quality: "default" | "medium" | "high" = "medium"): string {
   const qualities = {
     default: "default",

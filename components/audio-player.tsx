@@ -1,89 +1,122 @@
-'use client';
+"use client";
 
 import { useEffect, useRef, useState } from "react";
-import { Play, Pause, SkipBack, SkipForward, SpeakerHigh, SpeakerX } from "@phosphor-icons/react";
-import { cn, formatDuration } from "@/lib/utils";
-import { usePlayerStore } from "@/lib/store";
+import {
+  Play,
+  Pause,
+  SkipBack,
+  SkipForward,
+  SpeakerHigh,
+  SpeakerX,
+} from "@phosphor-icons/react";
+import { formatDuration } from "@/lib/utils";
+import { usePlayerStore } from "@/lib/store/store";
+import Range from "./ui/range";
+import Spinner from "./ui/spinner";
 
-export function AudioPlayer() {
+export const AudioPlayer = () => {
   const audioRef = useRef<HTMLAudioElement>(null);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
   const [isMuted, setIsMuted] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
-  const { currentTrack, isPlaying, togglePlay, playNext, playPrevious, volume, setVolume } = usePlayerStore();
+  const {
+    currentTrack,
+    isPlaying,
+    setIsPlaying,
+    playNext,
+    playPrevious,
+    volume,
+    setVolume,
+    isLoading,
+    setIsLoading,
+  } = usePlayerStore();
 
   useEffect(() => {
-    if (audioRef.current) {
-      const audio = audioRef.current;
+    if (!audioRef.current) return;
 
-      const handleTimeUpdate = () => {
-        setCurrentTime(audio.currentTime);
-      };
-      
-      const handleLoadedMetadata = () => {
-        setDuration(audio.duration);
-      };
-
-      const handleEnded = () => playNext();
-
-      audio.addEventListener("timeupdate", handleTimeUpdate);
-      audio.addEventListener("loadedmetadata", handleLoadedMetadata);
-      audio.addEventListener("ended", handleEnded);
-
-      return () => {
-        audio.removeEventListener("timeupdate", handleTimeUpdate);
-        audio.removeEventListener("loadedmetadata", handleLoadedMetadata);
-        audio.removeEventListener("ended", handleEnded);
-      };
-    }
-  }, [playNext]);
-
-  useEffect(() => {
-    if (audioRef.current) {
-      audioRef.current.volume = volume;
-    }
+    audioRef.current.volume = volume / 100;
+    localStorage.setItem("volume", volume.toString());
+    if (isMuted && volume > 0) setIsMuted(false);
   }, [volume]);
 
   useEffect(() => {
-    if (audioRef.current) {
-      if (isPlaying) {
-        audioRef.current.play();
-      } else {
-        audioRef.current.pause();
-      }
+    if (!audioRef.current) return;
+
+    if (isPlaying) {
+      audioRef.current.play().catch((error) => {
+        console.warn("Lecture bloquée par le navigateur :", error);
+      });
+    } else {
+      audioRef.current.pause();
     }
   }, [isPlaying]);
 
   useEffect(() => {
-    if (currentTrack && audioRef.current) {
-      const audioUrl = `/api/youtube/stream?videoId=${currentTrack.id}`;
-      audioRef.current.pause();
-      audioRef.current.currentTime = 0;
-      setCurrentTime(0);
-      setIsLoading(true);
-      
-      audioRef.current.src = audioUrl;
-      
-      audioRef.current.addEventListener('canplay', () => {
-        setIsLoading(false);
-        if (isPlaying) {
-          audioRef.current?.play();
-        }
-      }, { once: true });
-    }
-  }, [currentTrack, isPlaying]);
+    if (!currentTrack || !audioRef.current) return;
 
-  const handleSeek = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const time = parseFloat(e.target.value);
+    const volumeStored = localStorage.getItem("volume");
+    if (volumeStored) {
+      setVolume(Number.parseFloat(volumeStored));
+    }
+
+    const audioUrl = `/api/youtube/stream?videoId=${currentTrack.id}`;
+    const audio = audioRef.current;
+
+    if (isPlaying) setIsPlaying(false);
+
+    audio.src = audioUrl;
+    audio.currentTime = 0;
+    setCurrentTime(0);
+    setIsLoading(true);
+    
+
+    const handleTimeUpdate = () => {
+      setCurrentTime(audio.currentTime);
+    };
+
+    const handleLoadedMetadata = () => {
+      setDuration(audio.duration);
+    };
+
+    const handleEnded = () => playNext();
+
+    audio.addEventListener("timeupdate", handleTimeUpdate);
+    audio.addEventListener("loadedmetadata", handleLoadedMetadata);
+    audio.addEventListener("ended", handleEnded);
+    audio.addEventListener(
+      "canplay",
+      () => {
+        setIsLoading(false);
+        setIsPlaying(true);
+      },
+      { once: true }
+    );
+
+    return () => {
+      audio.removeEventListener("timeupdate", handleTimeUpdate);
+      audio.removeEventListener("loadedmetadata", handleLoadedMetadata);
+      audio.removeEventListener("ended", handleEnded);
+      audio.removeEventListener("canplay", () => {
+        setIsLoading(false);
+        setIsPlaying(true);
+      });
+    };
+  }, [currentTrack]);
+
+  useEffect(() => {
+    if (!audioRef.current) return;
+
+    audioRef.current.muted = isMuted;
+  }, [isMuted]);
+
+  const handleSeek = (time: number) => {
     if (audioRef.current) {
       audioRef.current.currentTime = time;
       setCurrentTime(time);
     }
   };
 
-  const handleVolumeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = parseFloat(e.target.value);
+  const handleVolumeChange = (value: number) => {
     setVolume(value);
   };
 
@@ -91,18 +124,17 @@ export function AudioPlayer() {
     if (audioRef.current) {
       const newMutedState = !isMuted;
       setIsMuted(newMutedState);
-      audioRef.current.muted = newMutedState;
     }
   };
 
   if (!currentTrack) return null;
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 bg-white/10 dark:bg-black/50 backdrop-blur-lg border-t border-gray-200/20 dark:border-neon-blue/20">
-      <div className="container mx-auto px-4 py-3">
+    <div className="bg-white/10 w-full dark:bg-black/50 backdrop-blur-lg border-t border-gray-200/20 dark:border-cyan-200/20">
+      <div className="px-4 py-3">
         <div className="flex items-center gap-4">
           {/* Thumbnail et infos */}
-          <div className="flex items-center gap-3 w-[300px]">
+          <div className="flex items-center gap-3 max-w-64">
             <div className="w-12 h-12 shrink-0">
               {isLoading ? (
                 <div className="w-full h-full rounded bg-gray-200 dark:bg-gray-700 animate-pulse" />
@@ -114,7 +146,7 @@ export function AudioPlayer() {
                 />
               )}
             </div>
-            <div className="min-w-0 flex-1">
+            <div className="min-w-0 flex-1 hidden lg:block">
               {isLoading ? (
                 <>
                   <div className="h-5 w-full max-w-[200px] bg-gray-200 dark:bg-gray-700 rounded animate-pulse mb-1" />
@@ -134,99 +166,96 @@ export function AudioPlayer() {
           </div>
 
           {/* Contrôles */}
-          <div className="flex-1 max-w-[500px] mx-auto">
+          <div className="flex flex-col items-center mx-auto">
             <div className="flex items-center justify-center gap-4">
               <button
-                className="text-gray-600 dark:text-neon-blue hover:text-neon-blue dark:hover:text-white transition-colors"
+                className="text-gray-600 dark:text-cyan-200 hover:text-cyan-200 dark:hover:text-white transition-colors"
                 onClick={playPrevious}
                 disabled={isLoading}
               >
-                <SkipBack size={24} weight="fill" className={isLoading ? "opacity-50" : ""} />
+                <SkipBack
+                  size={24}
+                  weight="duotone"
+                  className={isLoading ? "opacity-50" : ""}
+                />
               </button>
               <button
-                className="text-gray-600 dark:text-neon-blue hover:text-neon-blue dark:hover:text-white transition-colors"
-                onClick={togglePlay}
+                className="text-gray-600 dark:text-cyan-200 hover:text-cyan-200 dark:hover:text-white transition-colors"
+                onClick={() => setIsPlaying(!isPlaying)}
                 disabled={isLoading}
               >
                 {isPlaying ? (
-                  <Pause size={32} weight="fill" className={isLoading ? "opacity-50" : ""} />
+                  <Pause
+                    size={32}
+                    weight="duotone"
+                    className={isLoading ? "opacity-50" : ""}
+                  />
+                ) : isLoading ? (
+                  <Spinner className="border-t-cyan-200/50" />
                 ) : (
-                  <Play size={32} weight="fill" className={isLoading ? "opacity-50" : ""} />
+                  <Play
+                    size={32}
+                    weight="duotone"
+                    className={isLoading ? "opacity-50" : ""}
+                  />
                 )}
               </button>
               <button
-                className="text-gray-600 dark:text-neon-blue hover:text-neon-blue dark:hover:text-white transition-colors"
+                className="text-gray-600 dark:text-cyan-200 hover:text-cyan-200 dark:hover:text-white transition-colors"
                 onClick={playNext}
                 disabled={isLoading}
               >
-                <SkipForward size={24} weight="fill" className={isLoading ? "opacity-50" : ""} />
+                <SkipForward
+                  size={24}
+                  weight="duotone"
+                  className={isLoading ? "opacity-50" : ""}
+                />
               </button>
             </div>
 
             {/* Progress bar */}
             <div className="flex items-center gap-2 mt-2">
-              <span className="text-xs text-gray-600 dark:text-gray-400 min-w-[40px] text-right">
+              <span className="w-7 text-xs text-gray-600 dark:text-gray-400">
                 {formatDuration(currentTime)}
               </span>
-              <input
-                type="range"
-                min={0}
-                max={duration || 0}
+              <Range
                 value={currentTime}
+                max={duration || 0}
+                step={1}
                 onChange={handleSeek}
                 disabled={isLoading}
-                className={cn(
-                  "flex-1 h-1 bg-gray-300 dark:bg-gray-700 rounded-full",
-                  "appearance-none cursor-pointer",
-                  "[&::-webkit-slider-thumb]:appearance-none",
-                  "[&::-webkit-slider-thumb]:w-3",
-                  "[&::-webkit-slider-thumb]:h-3",
-                  "[&::-webkit-slider-thumb]:rounded-full",
-                  "[&::-webkit-slider-thumb]:bg-neon-blue",
-                  "dark:[&::-webkit-slider-thumb]:shadow-[0_0_10px_rgba(0,255,255,0.5)]",
-                  isLoading && "opacity-50"
-                )}
+                className="h-1 md:text-4xl accent-cyan-300"
               />
-              <span className="text-xs text-gray-600 dark:text-gray-400 min-w-[40px]">
+              <span className="w-7 text-xs text-gray-600 dark:text-gray-400">
                 {formatDuration(duration)}
               </span>
             </div>
           </div>
 
           {/* Volume control */}
-          <div className="flex items-center gap-2 min-w-[150px]">
+          <div className="hidden sm:flex items-center gap relative group">
             <button
               onClick={toggleMute}
-              className="text-gray-600 dark:text-neon-blue hover:text-neon-blue dark:hover:text-white transition-colors"
+              className="text-gray-600 dark:text-cyan-200 hover:text-cyan-200 dark:hover:text-white transition-colors border-2 rounded-xl border-gray-200/20 dark:border-cyan-200/20 p-2 lg:border-none"
             >
               {isMuted ? (
-                <SpeakerX size={24} weight="fill" />
+                <SpeakerX size={24} weight="duotone" />
               ) : (
-                <SpeakerHigh size={24} weight="fill" />
+                <SpeakerHigh size={24} weight="duotone" />
               )}
             </button>
-            <input
-              type="range"
-              min={0}
-              max={1}
-              step={0.1}
-              value={volume}
-              onChange={handleVolumeChange}
-              className={cn(
-                "flex-1 h-1 bg-gray-300 dark:bg-gray-700 rounded-full",
-                "appearance-none cursor-pointer",
-                "[&::-webkit-slider-thumb]:appearance-none",
-                "[&::-webkit-slider-thumb]:w-3",
-                "[&::-webkit-slider-thumb]:h-3",
-                "[&::-webkit-slider-thumb]:rounded-full",
-                "[&::-webkit-slider-thumb]:bg-neon-blue",
-                "dark:[&::-webkit-slider-thumb]:shadow-[0_0_10px_rgba(0,255,255,0.5)]"
-              )}
-            />
+            <div className="hidden group-hover:flex -rotate-90 absolute z-1 -start-21 -top-29 border-2 rounded-full bg-white/10 dark:bg-black/50 backdrop-blur-lg border-t border-gray-200/20 dark:border-cyan-200/20 lg:static lg:rotate-none lg:border-none lg:flex items-center p-2">
+              <Range
+                value={volume}
+                step={1}
+                onChange={handleVolumeChange}
+                className="h-1 accent-cyan-300"
+              />
+            </div>
           </div>
         </div>
       </div>
       <audio ref={audioRef} />
     </div>
   );
-} 
+};

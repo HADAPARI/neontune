@@ -1,42 +1,37 @@
-'use client';
+"use client";
 
-import { usePlayerStore } from "@/lib/store";
-import type { Track } from "@/lib/types";
+import { usePlayerStore } from "@/lib/store/store";
 import { TrackItem } from "./track-item";
+import { Skeleton } from "./ui/skeleton";
 
 interface SearchResultsProps {
-  results: Track[];
-  isLoading?: boolean;
+  isLoading: boolean;
 }
 
-export function SearchResults({ results, isLoading }: SearchResultsProps) {
-  const { setCurrentTrack, addToQueue, currentTrack } = usePlayerStore();
-
-  const handlePlay = (track: Track) => {
-    setCurrentTrack(track);
-    addToQueue(track);
-  };
+export const SearchResults = ({ isLoading }: SearchResultsProps) => {
+  const { currentTrack, playlist } = usePlayerStore();
 
   if (isLoading) {
     return (
-      <div className="mt-8 space-y-4">
+      <div className="p-4 space-y-4">
         {Array.from({ length: 3 }).map((_, i) => (
-          <div
+          <Skeleton
             key={i}
-            className="animate-pulse flex items-center gap-4 p-4 rounded-lg bg-dark/50"
+            className="flex justify-between items-center p-4 rounded-lg bg-dark/50 border"
           >
-            <div className="w-16 h-16 bg-gray-700 rounded" />
-            <div className="flex-1 space-y-2">
-              <div className="h-4 bg-gray-700 rounded w-3/4" />
-              <div className="h-3 bg-gray-700 rounded w-1/2" />
+            <Skeleton className="size-10 sm:size-16 rounded" />
+            <div className="flex flex-col items-center space-y-2 w-40 sm:w-96">
+              <Skeleton className="h-3 sm:h-4 rounded w-full" />
+              <Skeleton className="h-2 sm:h-3 rounded w-1/2" />
             </div>
-          </div>
+            <Skeleton className="w-5 h-2 sm:h-3 rounded" />
+          </Skeleton>
         ))}
       </div>
     );
   }
 
-  if (results.length === 0) {
+  if (playlist.length === 0) {
     return (
       <div className="mt-8 text-center text-gray-400">
         Aucun résultat trouvé
@@ -45,15 +40,14 @@ export function SearchResults({ results, isLoading }: SearchResultsProps) {
   }
 
   return (
-    <div className="mt-8 space-y-4 pb-24">
-      {results.map((track) => (
+    <div className="space-y-4 p-4">
+      {playlist.map((track, key) => (
         <TrackItem
-          key={track.id}
+          key={key}
           track={track}
           isActive={currentTrack?.id === track.id}
-          onPlay={handlePlay}
         />
       ))}
     </div>
   );
-} 
+};

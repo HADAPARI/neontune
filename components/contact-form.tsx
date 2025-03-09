@@ -58,8 +58,8 @@ export function ContactForm({ onClose }: ContactFormProps) {
 
   return (
     <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-      <div className="bg-dark w-full max-w-lg rounded-lg border border-neon-blue/20 shadow-[0_0_25px_rgba(0,255,255,0.1)]">
-        <div className="flex items-center justify-between p-4 border-b border-neon-blue/20">
+      <div className="bg-dark w-full max-w-lg rounded-lg border border-cyan-200/20 shadow-[0_0_25px_rgba(0,255,255,0.1)]">
+        <div className="flex items-center justify-between p-4 border-b border-cyan-200/20">
           <h2 className="text-xl font-semibold text-white">Contactez-nous</h2>
           <button
             onClick={onClose}
@@ -78,8 +78,8 @@ export function ContactForm({ onClose }: ContactFormProps) {
                 "flex-1 p-3 rounded-lg border-2 flex items-center justify-center gap-2",
                 "transition-all duration-200",
                 selectedType === "bug"
-                  ? "border-neon-pink bg-neon-pink/10 text-white"
-                  : "border-gray-700 text-gray-400 hover:border-neon-pink/50"
+                  ? "border-pink-600 bg-pink-600/10 text-white"
+                  : "border-gray-700 text-gray-400 hover:border-pink-600/50"
               )}
             >
               <Bug size={24} />
@@ -93,8 +93,8 @@ export function ContactForm({ onClose }: ContactFormProps) {
                 "flex-1 p-3 rounded-lg border-2 flex items-center justify-center gap-2",
                 "transition-all duration-200",
                 selectedType === "suggestion"
-                  ? "border-neon-blue bg-neon-blue/10 text-white"
-                  : "border-gray-700 text-gray-400 hover:border-neon-blue/50"
+                  ? "border-cyan-200 bg-cyan-200/10 text-white"
+                  : "border-gray-700 text-gray-400 hover:border-cyan-200/50"
               )}
             >
               <Lightbulb size={24} />
@@ -110,13 +110,13 @@ export function ContactForm({ onClose }: ContactFormProps) {
                 "w-full p-3 rounded-lg",
                 "bg-dark border-2 border-gray-700",
                 "text-white placeholder-gray-400",
-                "focus:outline-none focus:border-neon-blue",
+                "focus:outline-none focus:border-cyan-200",
                 "transition-colors"
               )}
               {...register("email")}
             />
             {errors.email && (
-              <p className="mt-1 text-sm text-neon-pink">{errors.email.message}</p>
+              <p className="mt-1 text-sm text-pink-600">{errors.email.message}</p>
             )}
           </div>
 
@@ -128,13 +128,13 @@ export function ContactForm({ onClose }: ContactFormProps) {
                 "w-full p-3 rounded-lg",
                 "bg-dark border-2 border-gray-700",
                 "text-white placeholder-gray-400",
-                "focus:outline-none focus:border-neon-blue",
+                "focus:outline-none focus:border-cyan-200",
                 "transition-colors"
               )}
               {...register("subject")}
             />
             {errors.subject && (
-              <p className="mt-1 text-sm text-neon-pink">{errors.subject.message}</p>
+              <p className="mt-1 text-sm text-pink-600">{errors.subject.message}</p>
             )}
           </div>
 
@@ -146,23 +146,23 @@ export function ContactForm({ onClose }: ContactFormProps) {
                 "w-full p-3 rounded-lg",
                 "bg-dark border-2 border-gray-700",
                 "text-white placeholder-gray-400",
-                "focus:outline-none focus:border-neon-blue",
+                "focus:outline-none focus:border-cyan-200",
                 "transition-colors",
                 "resize-none"
               )}
               {...register("message")}
             />
             {errors.message && (
-              <p className="mt-1 text-sm text-neon-pink">{errors.message.message}</p>
+              <p className="mt-1 text-sm text-pink-600">{errors.message.message}</p>
             )}
           </div>
 
           {submitError && (
-            <p className="text-neon-pink text-sm">{submitError}</p>
+            <p className="text-pink-600 text-sm">{submitError}</p>
           )}
 
           {submitSuccess && (
-            <p className="text-neon-blue text-sm">
+            <p className="text-cyan-200 text-sm">
               Message envoyé avec succès !
             </p>
           )}
@@ -172,9 +172,9 @@ export function ContactForm({ onClose }: ContactFormProps) {
             disabled={isSubmitting}
             className={cn(
               "w-full p-3 rounded-lg",
-              "bg-neon-blue/10 text-neon-blue",
-              "border-2 border-neon-blue",
-              "hover:bg-neon-blue/20",
+              "bg-cyan-200/10 text-cyan-200",
+              "border-2 border-cyan-200",
+              "hover:bg-cyan-200/20",
               "transition-colors",
               "disabled:opacity-50 disabled:cursor-not-allowed"
             )}
