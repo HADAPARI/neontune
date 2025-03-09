@@ -1,7 +1,8 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
-import type { YouTubeSearchResult } from "@/lib/types";
-import { searchInYoutube } from "@/lib/actions/youtube.action";
+import type { Track, YouTubeSearchResult } from "@/lib/types";
+import { getVideoDetails, searchInYoutube } from "@/lib/actions/youtube.action";
+import { parseDuration } from "@/lib/utils";
 
 const searchParamsSchema = z.object({
   q: z.string().min(1),
@@ -35,58 +36,39 @@ export const GET = async (request: Request) => {
       }
     );
 
-    const tracks = filteredItems.map(
-      ({ id, snippet }: YouTubeSearchResult) => ({
-        id: id.videoId,
-        title: snippet.title,
-        thumbnail: snippet.thumbnails.medium.url,
-        artist: snippet.channelTitle,
-      })
+    const videoIds = filteredItems?.map(
+      (item: YouTubeSearchResult) => item.id.videoId
     );
 
-    // const videoIds = filteredItems?.map(
-    //   (item: YouTubeSearchResult) => item.id.videoId
-    // );
-
-    // if (!videoIds || videoIds?.length === 0) {
-    //   return NextResponse.json({
-    //     items: [],
-    //     totalResults: 0,
-    //   });
-    // }
+    if (!videoIds || videoIds?.length === 0) {
+      return NextResponse.json({
+        items: [],
+        totalResults: 0,
+      });
+    }
 
     // Récupération des détails des vidéos (notamment la durée)
-    // const detailsResponse = await fetch(
-    //   `${YOUTUBE_API_URL}/videos?part=contentDetails&id=${videoIds.join(
-    //     ","
-    //   )}&key=${YOUTUBE_API_KEY_1}`
-    // );
-
-    // if (!detailsResponse.ok) {
-    //   console.error("Failed to fetch video details from YouTube API");
-    // }
-
-    // const detailsData = await detailsResponse.json();
+    const detailsData = await getVideoDetails(videoIds);
 
     // Fusion des résultats
-    // const tracks = filteredItems.map((item: YouTubeSearchResult) => {
-    //   const details = detailsData.items.find(
-    //     (detail: any) => detail.id === item.id.videoId
-    //   );
+    const tracks = filteredItems.map((item: YouTubeSearchResult) => {
+      const details = detailsData.items.find(
+        (detail: any) => detail.id === item.id.videoId
+      );
 
-    // Conversion de la durée ISO 8601 en secondes
-    // const duration = details?.contentDetails?.duration
-    //   ? parseDuration(details.contentDetails.duration)
-    //   : 0;
+      // Conversion de la durée ISO 8601 en secondes
+      const duration = details?.contentDetails?.duration
+        ? parseDuration(details.contentDetails.duration)
+        : 0;
 
-    //   return {
-    //     id: item.id.videoId,
-    //     title: item.snippet.title,
-    //     artist: item.snippet.channelTitle,
-    //     thumbnail: item.snippet.thumbnails.medium.url,
-    //     // duration,
-    //   };
-    // });
+      return {
+        id: item.id.videoId,
+        title: item.snippet.title,
+        artist: item.snippet.channelTitle,
+        thumbnail: item.snippet.thumbnails.medium.url,
+        duration,
+      };
+    });
 
     return NextResponse.json({
       items: tracks,
@@ -100,17 +82,4 @@ export const GET = async (request: Request) => {
       { status: 500 }
     );
   }
-};
-
-// Fonction utilitaire pour convertir la durée ISO 8601 en secondes
-const parseDuration = (duration: string): number => {
-  const matches = duration.match(/PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?/);
-  if (!matches) return 0;
-
-  const [, hours, minutes, seconds] = matches;
-  return (
-    parseInt(hours || "0") * 3600 +
-      parseInt(minutes || "0") * 60 +
-      parseInt(seconds || "0") || 0
-  );
 };

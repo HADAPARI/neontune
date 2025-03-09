@@ -31,6 +31,34 @@ export const searchInYoutube = async ({
   return searchData;
 };
 
+export const getVideoDetails = async (videoIds: string[]) => {
+  let detailsData;
+
+  for (const key in YOUTUBE_API_KEY) {
+    const apiKey = YOUTUBE_API_KEY[key];
+    detailsData = await fetchDetails(videoIds, apiKey);
+    if (!detailsData.error) {
+      break;
+    }
+  }
+
+  return detailsData;
+};
+
+const fetchDetails = async (videoIds: string[], apiKey: string) => {
+  const detailsResponse = await fetch(
+    `${YOUTUBE_API_URL}/videos?part=contentDetails&id=${videoIds.join(
+      ","
+    )}&key=${apiKey}`
+  );
+
+  if (detailsResponse.status !== 200) {
+    console.error("Failed to fetch video details from YouTube API: ", apiKey);
+  }
+
+  return await detailsResponse.json();
+};
+
 interface FecthDataProps extends searchInYoutubePropos {
   apiKey: string;
 }
